@@ -1,0 +1,156 @@
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
+
+import gensim
+
+test = """Insert your own email in here to test
+ """
+
+#Reads in all information
+le = open('NewsWay.txt','r')
+Newsway = le.read()
+le = open('Rawdocs.txt','r')
+content = le.read()
+le = open('Google Group Request.txt','r')
+GoogleGroup = le.read()
+le = open('Waffles.txt','r')
+Waffles = le.read()
+le = open('MediaPlanner.txt','r')
+MediaPlanner = le.read()
+le = open('Omniture.txt','r')
+Omniture = le.read()
+le = open('Alias.txt','r')
+Alias = le.read()
+le = open('Password.txt','r')
+Password = le.read()
+le = open('Goodsandservices.txt','r')
+Goodsandservices = le.read()
+le = open('Deskmove.txt','r')
+Deskmove = le.read()
+le = open('Remoteaccess.txt','r')
+Remoteaccess = le.read()
+le = open('Wordpress.txt','r')
+Wordpress = le.read()
+le = open('ExtentionR.txt','r')
+ExtentionR = le.read()
+
+#Creates the corpus /bag of words
+raw_documents = Newsway,GoogleGroup,Waffles,MediaPlanner,Omniture,Password,Alias,Goodsandservices,Deskmove,Remoteaccess,Wordpress,ExtentionR
+from nltk.tokenize import word_tokenize
+gen_docs = [[w.lower() for w in word_tokenize(text)]
+            for text in raw_documents]
+
+def largest(arr,n):
+
+	# Initialize maximum element
+	max = arr[0]
+
+	# Traverse array elements from second
+	# and compare every element with
+	# current max
+	for i in range(1, n):
+		if arr[i] > max:
+			max = arr[i]
+	return max
+
+
+dictionary = gensim.corpora.Dictionary(gen_docs)
+#print(dictionary[5])
+#print(dictionary.token2id['road'])
+#print("Number of words in dictionary:",len(dictionary))
+#for i in range(len(dictionary)):
+#    print(i, dictionary[i])
+
+corpus = [dictionary.doc2bow(gen_doc) for gen_doc in gen_docs]
+tf_idf = gensim.models.TfidfModel(corpus)
+
+s = 0
+for i in corpus:
+    s += len(i)
+
+sims = gensim.similarities.Similarity('/Users/jpye/PycharmProjects/untitled/',tf_idf[corpus],
+                                      num_features=len(dictionary)) 
+
+
+#Breaks the doc down into words
+query_doc = [w.lower() for w in word_tokenize(test)]
+#print(query_doc)
+
+
+query_doc_bow = dictionary.doc2bow(query_doc)
+#print(query_doc_bow)
+
+#Vectorises score
+query_doc_tf_idf = tf_idf[query_doc_bow]
+#print(query_doc_tf_idf)
+
+#Creates a readable data for humans e.g. % not vector
+output = sims[query_doc_tf_idf]
+x=0
+y=0
+Z=0
+Confidence = []
+for i in output:
+    Confidence.append((output[x])*100)
+    x = x + 1
+
+#Provides the answer with the highest confidence
+n = len(Confidence)
+Ans = largest(Confidence,n)
+print("The answer we have the highest confidence in is",Ans)
+if Ans > 70:
+    print("I am not confident enough to provide an answer")
+    Doc = (Confidence.index(Ans))
+    print(Doc)
+    if Doc == 0:
+        print("print smart app")
+    if Doc == 1:
+        print("google Group")
+    if Doc == 3:
+        print("media planner")
+    if Doc == 4:
+        print("Omniture")
+    if Doc == 5:
+        print("Password")
+    if Doc == 6:
+        print("Alias")
+    if Doc == 7:
+        print("Goods and services")
+    if Doc == 8:
+        print("Desk Move")
+    if Doc == 9:
+        print("Remote Access")
+    if Doc == 10:
+        print("Wordpress")
+    if Doc == 11:
+        print("Extention")
+    # Doc = (output.index(z))
+else:
+    Doc = (Confidence.index(Ans))
+    print(Doc)
+    if Doc == 0:
+        print("print smart app")
+    if Doc == 1:
+        print("google Group")
+    if Doc == 3:
+        print("media planner")
+    if Doc == 4:
+        print("Omniture")
+    if Doc == 5:
+        print("Password")
+    if Doc == 6:
+        print("Alias")
+    if Doc == 7:
+        print("Goods and services")
+    if Doc == 8:
+        print("Desk Move")
+    if Doc == 9:
+        print("Remote Access")
+    if Doc == 10:
+        print("Wordpress")
+    if Doc == 11:
+        print("Extention")
+    #Doc = (output.index(z))
+ #   print(Doc)
+#
+#print("The closest match to your question is:",raw_documents[Doc])
