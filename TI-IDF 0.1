@@ -1,0 +1,85 @@
+import warnings
+warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
+ 
+import gensim
+ 
+import nltk
+#print(dir(gensim))
+le = open('NewsWay.txt','r')
+Newsway = le.read()
+le = open('Rawdocs.txt','r')
+content = le.read()
+#raw_documents = content.splitlines()
+raw_documents = Newsway
+#print("Number of documents:",len(raw_documents))
+ 
+from nltk.tokenize import word_tokenize
+gen_docs = [[w.lower() for w in word_tokenize(text)]
+            for text in raw_documents]
+#print(gen_docs)
+ 
+def largest(arr,n):
+ 
+    # Initialize maximum element
+    max = arr[0]
+ 
+    # Traverse array elements from second
+    # and compare every element with
+    # current max
+    for i in range(1, n):
+        if arr[i] > max:
+            max = arr[i]
+    return max
+ 
+ 
+dictionary = gensim.corpora.Dictionary(gen_docs)
+#print(dictionary[5])
+#print(dictionary.token2id['road'])
+#print("Number of words in dictionary:",len(dictionary))
+#for i in range(len(dictionary)):
+#    print(i, dictionary[i])
+ 
+corpus = [dictionary.doc2bow(gen_doc) for gen_doc in gen_docs]
+#print(corpus)
+ 
+tf_idf = gensim.models.TfidfModel(corpus)
+#print(tf_idf)
+s = 0
+for i in corpus:
+    s += len(i)
+#print(s)
+ 
+sims = gensim.similarities.Similarity('/Users/jpye/PycharmProjects/untitled/',tf_idf[corpus],
+                                      num_features=len(dictionary)) 
+#print(sims)
+#print(type(sims))
+ 
+query_doc = [w.lower() for w in word_tokenize('"Socks areqweqweqe a foawdawrce fowqeqe231r goasdasdasdod."')]
+#print(query_doc)
+query_doc_bow = dictionary.doc2bow(query_doc)
+#print(query_doc_bow)
+query_doc_tf_idf = tf_idf[query_doc_bow]
+#print(query_doc_tf_idf)
+ 
+output = sims[query_doc_tf_idf]
+x=0
+y=0
+Z=0
+Confidence = []
+for i in output:
+    Confidence.append((output[x])*100)
+   # Confidence = str(Confidence)
+    #print(Confidence)
+    x = x + 1
+ 
+ 
+n = len(Confidence)
+Ans = largest(Confidence,n)
+print("The answer we have the highest confidence in is",Ans)
+if (Ans < 70):
+    print("I am not confident enough to provide an answer")
+else:
+    Doc = (Confidence.index(Ans))
+    #Doc = (output.index(z))
+ #   print(Doc)
+    print("The closest match to your
